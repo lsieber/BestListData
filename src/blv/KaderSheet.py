@@ -8,26 +8,25 @@ import statistics
 from src.blv.Utils import formatResult
 from src.blv.Utils import fromatResultOfPerformance
 
+
 class KaderSheet():
     '''
     classdocs
     '''
 
-
-    def __init__(self, name, limits, additionalDisziplinNames = None):
+    def __init__(self, name, limits, additionalDisziplinNames=None):
         '''
         Constructor
         '''
         self.performancesByAthlete = {}
         self.otherLimitsByAthlete = {}
+        self.otherPerformancesByAthlete = {}
         self.athletes = {}
         self.name = name
         self.limits = limits
         self.disziplins = []
         self.disziplinIds = []
         self.extractDisziplinsForKader(additionalDisziplinNames)
-        
-        
         
     def extractDisziplinsForKader(self, additionalDisziplinNames):
         for limit in self.limits.limitsClasses:
@@ -38,7 +37,7 @@ class KaderSheet():
         'Here We add additional relevant Disziplins to the Kadersheet which are not contained in the Limits. e.g. 150m in sprint'
         if additionalDisziplinNames != None:
             for disziplinName in additionalDisziplinNames:
-                additionalDisziplin =  getDisziplinByName(disziplinName)
+                additionalDisziplin = getDisziplinByName(disziplinName)
                 if additionalDisziplin == None:
                     print("could not find Disziplin " + disziplinName + " in our list. Maybe you have to add it to the disziplins list under src/sa/config")
                 else:
@@ -68,30 +67,29 @@ class KaderSheet():
                 if performance.disziplin.id not in self.otherLimitsByAthlete[performance.athlete.id]:
                     self.otherLimitsByAthlete[performance.athlete.id][performance.disziplin.id] = []
                 self.otherLimitsByAthlete[performance.athlete.id][performance.disziplin.id].append(performance)
-                
+            else: 
+                if performance.athlete.id not in self.otherPerformancesByAthlete:
+                    self.otherPerformancesByAthlete[performance.athlete.id] = {}
+                if performance.disziplin.id not in self.otherPerformancesByAthlete[performance.athlete.id]:
+                    self.otherPerformancesByAthlete[performance.athlete.id][performance.disziplin.id] = []
+                self.otherPerformancesByAthlete[performance.athlete.id][performance.disziplin.id].append(performance)
               
     def exportSheet(self, exportfile):
         with open(exportfile, 'w') as f:
             f.write("%s Kader\n" % self.name)
-            f.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % ("Name", "Jg", "Geschl.", "Verein", "Disziplin", "SB", "Avg best 3", "Anzahl Resultate", "Limite", "Limite erreicht", "andere Limiten"))
+            f.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % ("Name", "Jg", "Geschl.", "Verein", "Disziplin", "SB", "Avg best 3", "Anzahl Resultate", "Limite", "Limite erreicht", "andere Limiten", "andere Leistungen"))
 
             for athleteId in self.athletes:
                 firstRowAthlete = True
                 athlete = self.athletes[athleteId]
-                otherLimits = []
-                otherLimitString = ""
-                if athlete.id in self.otherLimitsByAthlete:
-                    for disziplinId in self.otherLimitsByAthlete[athlete.id]:
-                        performances = self.otherLimitsByAthlete[athlete.id][disziplinId]
-                        performances.sort(key=lambda p: float(p.result), reverse = not getDisziplinByid(disziplinId).ascending)
-                        otherLimits.append(performances[0])
-                        otherLimitString += performances[0].disziplin.name + ": " + str(performances[0].result) + " / "
-
+                otherLimitString = self.getOtherLimitsStringOfAthlete(athlete.id)
+                otherResultsString = self.getOtherResultsStringOfAthlete(athlete.id)
+                
                 for disziplinId in self.performancesByAthlete[athleteId]:
                     disziplin = getDisziplinByid(disziplinId)
                     performances = self.performancesByAthlete[athleteId][disziplinId]
                     
-                    performances.sort(key=lambda p: float(p.result), reverse = not disziplin.ascending)
+                    performances.sort(key=lambda p: float(p.result), reverse=not disziplin.ascending)
                     limit = self.limits.getLimitByPerformance(performances[0])
                     limitValue = "%s" % (formatResult(limit.value, disziplin)) if limit != None else "keine"
                     fullfillsLimit = "erfüllt" if self.limits.performanceFulfillsOneLimit(performances[0]) else ""
@@ -99,11 +97,29 @@ class KaderSheet():
                     bestResult = fromatResultOfPerformance(performances[0])
                     best3average = formatResult(statistics.mean(float(p.result) for p in performances[:3]), disziplin) if len(performances) >= 3 else ""
                     if firstRowAthlete:
-                        f.write("%s;%s;%s;%s;%s;%s;%s;%i;%s;%s;%s\n" % (athlete.name, athlete.birthYear, athlete.gender, athlete.club.name, disziplin.name, bestResult, best3average, len(performances), limitValue, fullfillsLimit, otherLimitString))
+                        f.write("%s;%s;%s;%s;%s;%s;%s;%i;%s;%s;%s;%s\n" % (athlete.name, athlete.birthYear, athlete.gender, athlete.club.name, disziplin.name, bestResult, best3average, len(performances), limitValue, fullfillsLimit, otherLimitString, otherResultsString))
                         firstRowAthlete = False
                     else:
                         f.write(";;;;%s;%s;%s;%i;%s;%s\n" % (disziplin.name, bestResult, best3average, len(performances), limitValue, fullfillsLimit))
                     
-                    
         print("exported file: " + exportfile)
-        
+    
+    def getOtherLimitsStringOfAthlete(self, athleteId):
+        otherLimits = []
+        if athleteId in self.otherLimitsByAthlete:
+            for disziplinId in self.otherLimitsByAthlete[athleteId]:
+                performances = self.otherLimitsByAthlete[athleteId][disziplinId]
+                performances.sort(key=lambda p: float(p.result), reverse=not getDisziplinByid(disziplinId).ascending)
+                otherLimits.append(performances[0].disziplin.name + ": " + str(fromatResultOfPerformance(performances[0])))
+        return  " / ".join(otherLimits)
+    
+    def getOtherResultsStringOfAthlete(self, athleteId):
+        otherLimits = []
+        if athleteId in self.otherPerformancesByAthlete:
+            for disziplinId in self.otherPerformancesByAthlete[athleteId]:
+                performances = self.otherPerformancesByAthlete[athleteId][disziplinId]
+                performances.sort(key=lambda p: float(p.result), reverse=not getDisziplinByid(disziplinId).ascending)
+                otherLimits.append(performances[0].disziplin.name + ": " + str(fromatResultOfPerformance(performances[0])))
+        return  " / ".join(otherLimits)
+    
+     

@@ -10,7 +10,7 @@ class Performance:
     classdocs
     '''
 
-    def __init__(self, result, athlete, competition, disziplin, rang, wind = None):
+    def __init__(self, result, athlete, competition, disziplin, rang, wind = None, detail = None):
         '''
         Constructor
         '''
@@ -20,5 +20,19 @@ class Performance:
         self.disziplin = disziplin
         self.rang = rang
         self.wind = wind
+        self.detail = detail
 
 
+    def printDetails(self):
+        print("%s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (
+            self.disziplin.name,
+            self.result,
+            self.wind,
+            self.rang,
+            self.athlete.name,
+            self.athlete.birthDate,
+            self.competition.date,
+            self.competition.location,
+            self.competition.name,
+            self.detail
+            ))

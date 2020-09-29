@@ -48,7 +48,9 @@ def getCategories():
         Category("5c4o3k5m-d686mo-j986g2ie-1-j986g45z-bo", "U20M", "M"),
         Category("5c4o3k5m-d686mo-j986g2ie-1-j986g461-bp", "U20W", "W"),
         Category("5c4o3k5m-d686mo-j986g2ie-1-j986g463-bq", "U23M", "M"),
-        Category("5c4o3k5m-d686mo-j986g2ie-1-j986g465-br", "U23W", "W")
+        Category("5c4o3k5m-d686mo-j986g2ie-1-j986g465-br", "U23W", "W"),
+        Category("M", "M", "M"),
+        Category("W", "W", "W")
         ]
     
 # def getCategoryFromName(categoryName):

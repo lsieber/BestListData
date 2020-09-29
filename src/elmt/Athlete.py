@@ -3,8 +3,9 @@ Created on 27.02.2020
 
 @author: Lukas Sieber
 '''
+from src.elmt.AthleteMinimal import AthleteMinimal
 
-class Athlete():
+class Athlete(AthleteMinimal):
     '''
     classdocs
     '''
@@ -14,9 +15,9 @@ class Athlete():
         '''
         Constructor
         '''
-        self.id = athleteId
-        self.name = athleteName
-        self.gender = gender
+        super().__init__(athleteId, athleteName) 
         self.club = club
+        self.gender = gender
         self.birthDate = birthDate
-        self.birthYear = int(birthDate[-4:])
+        self.birthYear = int(birthDate[-4:]) if birthDate is not None else None
+    

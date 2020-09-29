@@ -32,7 +32,7 @@ def time2sec(time_str):
     splited = str(time_str).replace("m","").split(':')
     if len(splited) == 1:
         # w = Mehrkämpfe mit Wind
-        return float(splited[0].replace("w", ""))
+        return float(splited[0].replace("w", "").replace("*", "").replace("A",""))
     if len(splited) == 2:
         return int(splited[0]) * 60 + float(splited[1])
     if len(splited) == 3:
@@ -53,3 +53,6 @@ def formatResult(result, disziplin):
 
 def fromatResultOfPerformance(performance):
     return formatResult(performance.result, performance.disziplin)
+
+
+            

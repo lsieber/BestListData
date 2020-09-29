@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
-from src.exportCSV import exportCSV
-from src.categoryParsing import findbyIdentifiers
+from src.io.exportCSV import exportCSV
+from src.io.categoryParsing import findbyIdentifiers
 
 
 
