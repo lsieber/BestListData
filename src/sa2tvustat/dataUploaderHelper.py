@@ -24,8 +24,9 @@ def uploadPerformance(url, name, birthYear, cName, cDate, cLocation, disziplin, 
    
     req = requests.post(url, data=data)
     doc = BeautifulSoup(req.text, 'html.parser')
-    print(doc.text)
+    #print(doc.text)
     j = json.loads(str(doc.text))
+    print(j["message"])
     return j["success"]
     #return True
 
@@ -48,4 +49,6 @@ def checkAthleteExists(url, name, birthYear):
     req = requests.post(url, data=data)
     doc = BeautifulSoup(req.text, 'html.parser')
     j = json.loads(str(doc.text))
+    if not j["success"]:
+        print(doc.text)
     return j["success"]
