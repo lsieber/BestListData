@@ -3,8 +3,7 @@ import os
 from src.io.exportCSV import exportCSV
 from src.sa.bl import saDbRequest
 from src.sa.bl.bestListProcessor import bestListProcessor
-from src.sa.config.categoryIds import getCategoryByid, getCategories,\
-    getCategoryByName
+from src.sa.config.categoryIds import getCategoryByid, getCategories
 from src.elmt.Club import Club
 
 
